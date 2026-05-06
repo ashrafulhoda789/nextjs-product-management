@@ -12,17 +12,34 @@ import {
     TextArea,
     TextField,
 } from "@heroui/react";
+import { redirect } from "next/navigation";
 import { IoMdAdd } from "react-icons/io";
+import { toast } from "react-toastify";
 
 const AddNewProducts = () => {
 
-    const onSubmit = (e) => {
+    const onSubmit = async(e) => {
         e.preventDefault();
 
         const formData = new FormData(e.target);
         const newProduct = Object.fromEntries(formData.entries());
 
         console.log(newProduct);
+
+        const req = await fetch('http://localhost:8006/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type' : 'application/json'
+            },
+            body: JSON.stringify(newProduct)
+        })
+
+        const res = await req.json();
+
+        if(res.success){
+            toast.success('Product added successfully');
+            redirect('/products')
+        }
     }
 
     return (
@@ -34,7 +51,7 @@ const AddNewProducts = () => {
                     <FieldGroup>
                         <TextField
                             isRequired
-                            name="name"
+                            name="product_name"
                             validate={(value) => {
                                 if (value.length < 2) {
                                     return "Name must be at least 2 characters";
